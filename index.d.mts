@@ -117,10 +117,10 @@ declare class MouseEvent {
 }
 declare class KeyBoardEvent {
     key: string;
-    altKey: boolean;
-    ctrlKey: boolean;
-    shiftKey: boolean;
-    metaKey: boolean;
+    altKey?: boolean;
+    ctrlKey?: boolean;
+    shiftKey?: boolean;
+    metaKey?: boolean;
     constructor(key: string, altKey: boolean, ctrlKey: boolean, shiftKey: boolean, metaKey: boolean);
 }
 
