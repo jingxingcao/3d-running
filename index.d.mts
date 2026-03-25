@@ -15,32 +15,74 @@ declare class BaseEntity {
     isMain: boolean;
     constructor(id: string, foreignKey: string, otherKey: string);
 }
+declare class BuildingEntity extends BaseEntity {
+    constructor(id: string, foreignKey: string, otherKey: string);
+}
 declare class MainEntity extends BaseEntity {
     constructor(id: string, foreignKey: string, otherKey: string);
 }
 
-declare class WindowManager {
-    #private;
-    hasWindowsMaps: Map<string, string>;
-    constructor();
-    addWindowByEntity(entity: BaseEntity, title: string, content?: string): void;
-    removeWindowByEntity(entity: BaseEntity): void;
-    dispose(): void;
+declare enum InjectCycleModeEnum {
+    ModelComplete = "ModelComplete",
+    BeforeRender = "BeforeRender"
 }
+declare enum SkyModeEnum {
+    None = "None",
+    Hdr = "Hdr",
+    Auto = "Auto",
+    Virtual = "Virtual"
+}
+declare enum MouseTargetEnum {
+    Left = "Left",
+    Wheel = "Wheel",
+    Right = "Right",
+    LeftDB = "LeftDB",
+    RightDB = "RightDB"
+}
+declare enum EntityTargetEnum {
+    Main = "Main",
+    Building = "Building",
+    Floor = "Floor",
+    Room = "Room",
+    Device = "Device",
+    Component = "Component",
+    Dynamic = "Dynamic"
+}
+declare enum ViewModeEnum {
+    First = "First",
+    Third = "Third"
+}
+
+declare const InjectCycleModeSchema: z.ZodEnum<typeof InjectCycleModeEnum>;
+declare const MouseTargetSchema: z.ZodEnum<typeof MouseTargetEnum>;
+declare const MouseEventOptionSchema: z.ZodObject<{
+    once: z.ZodOptional<z.ZodBoolean>;
+    accept: z.ZodEnum<typeof EntityTargetEnum>;
+    filter: z.ZodOptional<z.ZodCustom<() => boolean, () => boolean>>;
+}, z.core.$strip>;
+declare const HoverEventOptionSchema: z.ZodObject<{
+    once: z.ZodOptional<z.ZodBoolean>;
+    accept: z.ZodEnum<typeof EntityTargetEnum>;
+    allowEmpty: z.ZodOptional<z.ZodBoolean>;
+    filter: z.ZodOptional<z.ZodCustom<() => boolean, () => boolean>>;
+}, z.core.$strip>;
+declare const KeyBoardEventOptionSchema: z.ZodOptional<z.ZodObject<{
+    once: z.ZodOptional<z.ZodBoolean>;
+    altKey: z.ZodOptional<z.ZodBoolean>;
+    ctrlKey: z.ZodOptional<z.ZodBoolean>;
+    shiftKey: z.ZodOptional<z.ZodBoolean>;
+    metaKey: z.ZodOptional<z.ZodBoolean>;
+    matchCase: z.ZodOptional<z.ZodBoolean>;
+    filter: z.ZodOptional<z.ZodCustom<() => boolean, () => boolean>>;
+}, z.core.$strip>>;
+declare const ViewModeSchema: z.ZodEnum<typeof ViewModeEnum>;
+declare const AnimateOptionSchema: z.ZodOptional<z.ZodObject<{
+    delay: z.ZodOptional<z.ZodNumber>;
+    duration: z.ZodOptional<z.ZodNumber>;
+    stagger: z.ZodOptional<z.ZodNumber>;
+}, z.core.$strip>>;
 
 type NullValue<T> = T | null | undefined;
-
-declare class HitManager {
-    #private;
-    currentHover: NullValue<BaseEntity>;
-    currentHit: Map<string, BaseEntity>;
-    constructor();
-    toggleHit(entity: BaseEntity, color?: string): void;
-    cancelAllHit(): void;
-    toggleHoverHit(entity: NullValue<BaseEntity>, color?: string): void;
-    clearHoverHit(): void;
-    dispose(): void;
-}
 
 declare enum MouseEventEnum {
     Left = "Left",
@@ -82,64 +124,49 @@ declare class KeyBoardEvent {
     constructor(key: string, altKey: boolean, ctrlKey: boolean, shiftKey: boolean, metaKey: boolean);
 }
 
-declare enum InjectCycleModeEnum {
-    ModelComplete = "ModelComplete",
-    BeforeRender = "BeforeRender"
-}
-declare enum SkyModeEnum {
-    None = "None",
-    Hdr = "Hdr",
-    Auto = "Auto",
-    Virtual = "Virtual"
-}
-declare enum MouseTargetEnum {
-    Left = "Left",
-    Wheel = "Wheel",
-    Right = "Right",
-    LeftDB = "LeftDB",
-    RightDB = "RightDB"
-}
-declare enum EntityTargetEnum {
-    Main = "Main",
-    Building = "Building",
-    Floor = "Floor",
-    Room = "Room",
-    Device = "Device",
-    Component = "Component",
-    Dynamic = "Dynamic"
-}
-declare enum ViewModeEnum {
-    First = "First",
-    Third = "Third"
-}
-
-declare const InjectCycleModeSchema: z.ZodEnum<typeof InjectCycleModeEnum>;
-declare const MouseTargetSchema: z.ZodEnum<typeof MouseTargetEnum>;
-declare const MouseEventOptionSchema: z.ZodObject<{
-    once: z.ZodOptional<z.ZodBoolean>;
-    accept: z.ZodEnum<typeof EntityTargetEnum>;
-}, z.core.$strip>;
-declare const HoverEventOptionSchema: z.ZodObject<{
-    once: z.ZodOptional<z.ZodBoolean>;
-    accept: z.ZodEnum<typeof EntityTargetEnum>;
-    allowEmpty: z.ZodOptional<z.ZodBoolean>;
-}, z.core.$strip>;
-declare const KeyBoardEventOptionSchema: z.ZodOptional<z.ZodObject<{
-    once: z.ZodOptional<z.ZodBoolean>;
-    altKey: z.ZodOptional<z.ZodBoolean>;
-    ctrlKey: z.ZodOptional<z.ZodBoolean>;
-    shiftKey: z.ZodOptional<z.ZodBoolean>;
-    metaKey: z.ZodOptional<z.ZodBoolean>;
-    matchCase: z.ZodOptional<z.ZodBoolean>;
-}, z.core.$strip>>;
-declare const ViewModeSchema: z.ZodEnum<typeof ViewModeEnum>;
-
 type InjectCycleModeType = z$1.infer<typeof InjectCycleModeSchema>;
 type ViewMode = z$1.infer<typeof ViewModeSchema>;
 type MouseEventOption = z$1.infer<typeof MouseEventOptionSchema>;
 type HoverEventOption = z$1.infer<typeof HoverEventOptionSchema>;
 type KeyBoardEventOption = z$1.infer<typeof KeyBoardEventOptionSchema>;
 type MouseTarget = z$1.infer<typeof MouseTargetSchema>;
+type AnimateOption = z$1.infer<typeof AnimateOptionSchema>;
+
+declare class AnimateManager {
+    #private;
+    constructor();
+    explodeBuilding(building: BuildingEntity, gap?: number, option?: AnimateOption): void;
+    closeBuilding(building: BuildingEntity, option?: AnimateOption): void;
+    selfShow(entity: BaseEntity, option?: AnimateOption): void;
+}
+
+declare class ActiveStateManager {
+    #private;
+    constructor(animateManager: AnimateManager);
+    setActive(entity: BaseEntity): void;
+}
+
+declare class WindowManager {
+    #private;
+    hasWindowsMaps: Map<string, string>;
+    constructor();
+    addWindowByEntity(entity: BaseEntity, title: string, content?: string): void;
+    removeWindowByEntity(entity: BaseEntity): void;
+    dispose(): void;
+}
+
+declare class HitManager {
+    #private;
+    currentHover: NullValue<BaseEntity>;
+    constructor();
+    toggleHit(entity: BaseEntity): void;
+    cancelAllHit(): void;
+    toggleWarning(entity: BaseEntity): void;
+    cancelAllWarning(): void;
+    toggleHoverHit(entity: NullValue<BaseEntity>, color?: string): void;
+    clearHoverHit(): void;
+    dispose(): void;
+}
 
 declare class EventManager {
     #private;
@@ -169,6 +196,7 @@ declare const InitOptionSchema: z.ZodObject<{
     skyMode: z.ZodOptional<z.ZodEnum<typeof SkyModeEnum>>;
     baseUrl: z.ZodString;
     showFPS: z.ZodOptional<z.ZodBoolean>;
+    disableActiveManager: z.ZodOptional<z.ZodBoolean>;
     hdrUrl: z.ZodOptional<z.ZodString>;
     autoTime: z.ZodOptional<z.ZodBoolean>;
     fixTime: z.ZodOptional<z.ZodNumber>;
@@ -194,12 +222,16 @@ declare class RenderContext {
 
 declare class QueryManager {
     #private;
-    constructor();
-    workerParsing(buffer: ArrayBuffer): Promise<void>;
-    getById(id: string): NullValue<BaseEntity>;
-    getByForeignKey(foreignKey: string): NullValue<BaseEntity>;
-    getByOtherKey(otherKey: string): NullValue<BaseEntity>;
+    ready: Promise<void>;
+    constructor(worker: Worker);
+    postMsg(buffer: ArrayBuffer): void;
+    getEntityById(id: string): NullValue<BaseEntity>;
+    getEntityByForeignKey(foreignKey: string): NullValue<BaseEntity>;
+    getEntityByOtherKey(otherKey: string): NullValue<BaseEntity>;
+    getParentByEntity(entity: BaseEntity): NullValue<BaseEntity>;
     getMainEntity(): MainEntity;
+    getHits(): BaseEntity[];
+    getWarnings(): BaseEntity[];
     dispose(): void;
 }
 
@@ -212,6 +244,9 @@ declare const init: (container: HTMLDivElement, option: InitOption) => Promise<{
     eventManager: Partial<EventManager>;
     hitManager: Partial<HitManager>;
     windowManager: Partial<WindowManager>;
+    animateManager: Partial<AnimateManager>;
+    activeStateManager: Partial<ActiveStateManager> | null;
+    sceneReady: Promise<void>;
 }>;
 declare const dispose: () => void;
 
