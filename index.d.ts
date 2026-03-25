@@ -138,12 +138,16 @@ declare class AnimateManager {
     explodeBuilding(building: BuildingEntity, gap?: number, option?: AnimateOption): void;
     closeBuilding(building: BuildingEntity, option?: AnimateOption): void;
     selfShow(entity: BaseEntity, option?: AnimateOption): void;
+    dispose(): void;
 }
 
 declare class ActiveStateManager {
     #private;
     constructor(animateManager: AnimateManager);
     setActive(entity: BaseEntity): void;
+    backMain(): void;
+    back(): void;
+    dispose(): void;
 }
 
 declare class WindowManager {
