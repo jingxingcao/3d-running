@@ -40,6 +40,7 @@
     "@gltf-transform/core": "^4.3.0",
     "@gltf-transform/extensions": "^4.3.0",
     "gsap": "^3.13.0",
+    "pixi.js": "8.17.1",
     "zod": "^4.3.6"
   }
 }
