@@ -2,8 +2,8 @@
   "name": "running-three",
   "version": "0.1.0",
   "description": "Highly encapsulated 3D toolkit with scene, model, event, camera, window, and highlight managers for industrial visualization and web dashboards",
+  "type": "module",
   "main": "index.js",
-  "module": "index.mjs",
   "types": "index.d.ts",
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsup --config tsup.main.config.ts --watch",
