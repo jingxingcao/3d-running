@@ -52,6 +52,9 @@ declare enum ViewModeEnum {
     First = "First",
     Third = "Third"
 }
+declare enum AnimationEnum {
+    DoubleDoor = "DoubleDoor"
+}
 
 declare const InjectCycleModeSchema: z.ZodEnum<typeof InjectCycleModeEnum>;
 declare const MouseTargetSchema: z.ZodEnum<typeof MouseTargetEnum>;
@@ -81,6 +84,7 @@ declare const AnimateOptionSchema: z.ZodOptional<z.ZodObject<{
     duration: z.ZodOptional<z.ZodNumber>;
     stagger: z.ZodOptional<z.ZodNumber>;
 }, z.core.$strip>>;
+declare const AnimationSchema: z.ZodEnum<typeof AnimationEnum>;
 
 type NullValue<T> = T | null | undefined;
 
@@ -131,13 +135,26 @@ type HoverEventOption = z$1.infer<typeof HoverEventOptionSchema>;
 type KeyBoardEventOption = z$1.infer<typeof KeyBoardEventOptionSchema>;
 type MouseTarget = z$1.infer<typeof MouseTargetSchema>;
 type AnimateOption = z$1.infer<typeof AnimateOptionSchema>;
+type Animation = z$1.infer<typeof AnimationSchema>;
 
 declare class AnimateManager {
     #private;
     constructor();
+    registerAnimation(entity: BaseEntity, animCode: Animation): NullValue<Animate>;
     explodeBuilding(building: BuildingEntity, gap?: number, option?: AnimateOption): void;
     closeBuilding(building: BuildingEntity, option?: AnimateOption): void;
     selfShow(entity: BaseEntity, option?: AnimateOption): void;
+    dispose(): void;
+}
+
+declare class Animate {
+    #private;
+    id: string;
+    isPlay: boolean;
+    entityId: string;
+    constructor(id: string, entityId: string, play: () => void, stop: () => void, dispose: () => void);
+    play(): void;
+    stop(): void;
     dispose(): void;
 }
 
